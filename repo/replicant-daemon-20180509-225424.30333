@@ -1,0 +1,4 @@
+Log file created at: 2018/05/09 22:54:24
+Running on machine: replex
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+E0509 22:54:24.402964 30333 acceptor.cc:497] could not lock data directory

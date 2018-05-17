@@ -1,0 +1,4 @@
+Log file created at: 2018/05/09 22:58:23
+Running on machine: replex
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0509 22:58:23.882282 30558 daemon.cc:470] re-joining cluster as server(id=16279450834512402079, bind_to=140.180.129.1:1982) using bootstrap 140.180.129.1:1982

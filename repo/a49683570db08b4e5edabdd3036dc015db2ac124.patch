@@ -1,0 +1,106 @@
+From a49683570db08b4e5edabdd3036dc015db2ac124 Mon Sep 17 00:00:00 2001
+From: Robert Escriva <robert@rescrv.net>
+Date: Wed, 26 Aug 2015 11:43:18 -0400
+Subject: [PATCH] Fix transfers
+
+---
+ coordinator/coordinator.cc | 18 ++----------------
+ coordinator/coordinator.h  |  2 --
+ coordinator/transitions.cc | 10 ++++------
+ 3 files changed, 6 insertions(+), 24 deletions(-)
+
+diff --git a/coordinator/coordinator.cc b/coordinator/coordinator.cc
+index 2fb0bf67..9def766d 100644
+--- a/coordinator/coordinator.cc
++++ b/coordinator/coordinator.cc
+@@ -823,20 +823,13 @@ coordinator :: index_rm(rsm_context* ctx, index_id ii)
+ 
+ void
+ coordinator :: transfer_go_live(rsm_context* ctx,
+-                                uint64_t version,
+                                 const transfer_id& xid)
+ {
+     transfer* xfer = get_transfer(xid);
+ 
+     if (!xfer)
+     {
+-        if (version < m_version)
+-        {
+-            return;
+-        }
+-
+-        rsm_log(ctx, "cannot make transfer(%" PRIu64 ") live because it doesn't exist\n", xid.get());
+-        return generate_response(ctx, COORD_SUCCESS);
++        return;
+     }
+ 
+     region* reg = get_region(xfer->rid);
+@@ -870,20 +863,13 @@ coordinator :: transfer_go_live(rsm_context* ctx,
+ 
+ void
+ coordinator :: transfer_complete(rsm_context* ctx,
+-                                 uint64_t version,
+                                  const transfer_id& xid)
+ {
+     transfer* xfer = get_transfer(xid);
+ 
+     if (!xfer)
+     {
+-        if (version < m_version)
+-        {
+-            return;
+-        }
+-
+-        rsm_log(ctx, "cannot complete transfer(%" PRIu64 ") because it doesn't exist\n", xid.get());
+-        return generate_response(ctx, COORD_SUCCESS);
++        return;
+     }
+ 
+     region* reg = get_region(xfer->rid);
+diff --git a/coordinator/coordinator.h b/coordinator/coordinator.h
+index d5021350..9b2a05ba 100644
+--- a/coordinator/coordinator.h
++++ b/coordinator/coordinator.h
+@@ -105,10 +105,8 @@ class coordinator
+     // transfers management
+     public:
+         void transfer_go_live(rsm_context* ctx,
+-                              uint64_t version,
+                               const transfer_id& xid);
+         void transfer_complete(rsm_context* ctx,
+-                               uint64_t version,
+                                const transfer_id& xid);
+ 
+     // config management
+diff --git a/coordinator/transitions.cc b/coordinator/transitions.cc
+index a1339d62..3aa22de6 100644
+--- a/coordinator/transitions.cc
++++ b/coordinator/transitions.cc
+@@ -364,11 +364,10 @@ hyperdex_coordinator_transfer_go_live(struct rsm_context* ctx,
+ {
+     PROTECT_UNINITIALIZED;
+     transfer_id xid;
+-    uint64_t version;
+     e::unpacker up(data, data_sz);
+-    up = up >> xid >> version;
++    up = up >> xid;
+     CHECK_UNPACK(transfer_go_live);
+-    c->transfer_go_live(ctx, version, xid);
++    c->transfer_go_live(ctx, xid);
+ }
+ 
+ void
+@@ -377,11 +376,10 @@ hyperdex_coordinator_transfer_complete(struct rsm_context* ctx,
+ {
+     PROTECT_UNINITIALIZED;
+     transfer_id xid;
+-    uint64_t version;
+     e::unpacker up(data, data_sz);
+-    up = up >> xid >> version;
++    up = up >> xid;
+     CHECK_UNPACK(transfer_complete);
+-    c->transfer_complete(ctx, version, xid);
++    c->transfer_complete(ctx, xid);
+ }
+ 
+ void

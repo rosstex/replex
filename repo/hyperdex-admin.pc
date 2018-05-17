@@ -1,0 +1,11 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: hyperdex-admin
+Description: Admin library for the HyperDex scalable high performance key-value store
+Version: 1.8.1
+
+Libs: -L${libdir} -lhyperdex-admin
+Cflags: -I${includedir}
